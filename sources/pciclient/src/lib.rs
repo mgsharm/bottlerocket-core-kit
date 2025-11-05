@@ -7,7 +7,7 @@ pciclient provides util functions that can:
 */
 mod private;
 
-use private::{call_list_devices, check_efa_attachment, check_neuron_attachment, PciClient};
+use private::{call_list_devices, check_efa_attachment, check_neuron_attachment, check_amd_gpu_attachment, PciClient};
 
 use bon::Builder;
 use derive_getters::Getters;
@@ -118,6 +118,11 @@ pub fn is_efa_attached() -> Result<bool> {
 /// Call `lspci` and check if there is any Neuron device attached.
 pub fn is_neuron_attached() -> Result<bool> {
     check_neuron_attachment(PciClient {})
+}
+
+/// Call `lspci` and check if there is any AMD GPU device attached.
+pub fn is_amd_gpu_attached() -> Result<bool> {
+    check_amd_gpu_attachment(PciClient {})
 }
 
 mod error {

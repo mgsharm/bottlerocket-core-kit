@@ -2,17 +2,18 @@
 %global gorepo k8s-device-plugin
 %global goimport %{goproject}/%{gorepo}
 
-%global gover 1.31.0.8
+%global gover 1.31.0.8.mgsharm.norocm
 %global rpmver %{gover}
 
 Name: %{_cross_os}amd-k8s-device-plugin
 Version: %{rpmver}
 Release: 1%{?dist}
-Summary: Kubernetes device plugin for AMD GPUs
+Summary: Kubernetes device plugin for AMD GPUs (modified for non-ROCm GPUs)
 License: Apache-2.0
 URL: https://github.com/ROCm/k8s-device-plugin
 
-Source0: https://%{goimport}/archive/v%{gover}/v%{gover}.tar.gz#/k8s-device-plugin-%{gover}.tar.gz
+# Use local modified source instead of upstream
+Source0: k8s-device-plugin-local.tar.gz
 Source1: amd-k8s-device-plugin.service
 
 BuildRequires: %{_cross_os}glibc-devel
@@ -23,7 +24,7 @@ Requires: %{_cross_os}libdrm
 Requires: %{_cross_os}hwloc
 
 %description
-%{summary}.
+%{summary}. Modified to work with non-ROCm AMD GPUs like Radeon Pro V520.
 
 %package bin
 Summary: Kubernetes device plugin for AMD GPUs binaries
@@ -44,8 +45,8 @@ Conflicts: (%{_cross_os}image-feature(no-fips) or %{name}-bin)
 %{summary}.
 
 %prep
-%autosetup -n %{gorepo}-%{gover} -p1
-%cross_go_setup %{gorepo}-%{gover} %{goproject} %{goimport}
+%autosetup -n k8s-device-plugin -p1
+%cross_go_setup k8s-device-plugin %{goproject} %{goimport}
 
 %build
 %ifarch x86_64

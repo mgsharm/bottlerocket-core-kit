@@ -58,6 +58,7 @@ enum SubCommand {
     EbsDeviceName(EbsDeviceNameArgs),
     EfaPresent(EfaPresentArgs),
     NeuronPresent(NeuronPresentArgs),
+    AmdGpuPresent(AmdGpuPresentArgs),
     MatchNvidiaDriver(MatchNvidiaDriverArgs),
     WriteInfinibandGuid(WriteInfinibandGuidArgs),
 }
@@ -71,6 +72,11 @@ struct EfaPresentArgs {}
 #[argh(subcommand, name = "neuron-present")]
 /// Detect if Neuron devices are attached.
 struct NeuronPresentArgs {}
+
+#[derive(FromArgs, PartialEq, Debug)]
+#[argh(subcommand, name = "amd-gpu-present")]
+/// Detect if AMD GPU devices are attached.
+struct AmdGpuPresentArgs {}
 
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "scan")]
@@ -152,6 +158,9 @@ fn main() -> Result<()> {
         SubCommand::NeuronPresent(_) => {
             is_neuron_attached()?;
         }
+        SubCommand::AmdGpuPresent(_) => {
+            is_amd_gpu_attached()?;
+        }
         SubCommand::MatchNvidiaDriver(driver) => {
             let driver_name = driver.driver_name;
             nvidia_driver_supported(&driver_name)?;
@@ -176,6 +185,14 @@ fn is_neuron_attached() -> Result<()> {
         Ok(())
     } else {
         Err(error::Error::NoNeuronPresent)
+    }
+}
+
+fn is_amd_gpu_attached() -> Result<()> {
+    if pciclient::is_amd_gpu_attached().context(error::CheckAmdGpuFailureSnafu)? {
+        Ok(())
+    } else {
+        Err(error::Error::NoAmdGpuPresent)
     }
 }
 

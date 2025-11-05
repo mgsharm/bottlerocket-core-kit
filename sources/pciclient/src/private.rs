@@ -14,6 +14,7 @@ use crate::{
 
 const AMAZON_VENDOR_CODE: &str = "1d0f";
 const EFA_KEYWORD: &str = "efa";
+const AMD_VENDOR_CODE: &str = "1002";
 
 lazy_static! {
     static ref NEURON_DEVICES: HashSet<&'static str> = hashset! {
@@ -24,6 +25,13 @@ lazy_static! {
         "7164", // trn1 device id 0
         "7264", // inf2 device id 0
         "7364", // trn2 device id 0
+    };
+}
+
+lazy_static! {
+    static ref AMD_GPU_DEVICES: HashSet<&'static str> = hashset! {
+        "7360", // Navi 12 [Radeon Pro 5600M/V520/BC-160]
+        "7362", // Navi 12 [Radeon Pro V520/V540]
     };
 }
 
@@ -175,6 +183,19 @@ pub(crate) fn check_neuron_attachment<T: CommandExecutor>(command_executor: T) -
         .any(|device_info| NEURON_DEVICES.contains(&device_info.device.as_str())))
 }
 
+/// Call `lspci` and check if there is any AMD GPU device attached.
+/// Internal usage, adding command_executor as parameter allows us to better unit test.
+/// For external usage, check [`crate::is_amd_gpu_attached`].
+pub(crate) fn check_amd_gpu_attachment<T: CommandExecutor>(command_executor: T) -> Result<bool> {
+    let list_devices_param = ListDevicesParam::builder()
+        .vendor(AMD_VENDOR_CODE.to_string())
+        .build();
+    let list_device_results = call_list_devices(command_executor, list_devices_param)?;
+    Ok(list_device_results
+        .iter()
+        .any(|device_info| AMD_GPU_DEVICES.contains(&device_info.device.as_str())))
+}
+
 /// Internal usage, adding command_executor as parameter allows us to better unit test.
 /// For external usage, check [`list_devices`].
 pub(crate) fn call_list_devices<T: CommandExecutor>(
@@ -194,7 +215,7 @@ mod test {
     use crate::{ListDevicesOutput, ListDevicesParam, Result};
 
     use super::{
-        call_list_devices, check_efa_attachment, check_neuron_attachment,
+        call_list_devices, check_efa_attachment, check_neuron_attachment, check_amd_gpu_attachment,
         parse_list_devices_output, CommandExecutor,
     };
 
@@ -385,5 +406,30 @@ mod test {
         let check_neuron_attachment_result = check_neuron_attachment(mock_pci_client);
         assert!(check_neuron_attachment_result.is_ok());
         assert!(!check_neuron_attachment_result.unwrap());
+    }
+
+    #[test]
+    fn test_is_amd_gpu_attached() {
+        let mock_pci_client = MockPciClient {
+            // AMD Radeon Pro V520 device has vendor 1002 for AMD, device code 7362.
+            output: vec![
+                r#"00:1e.0 "0300" "1002" "7362" -p00 "1002" "0123""#.to_string(),
+                r#"00:1f.0 "0302" "10de" "1eb8" -ra1 -p00 "10de" "12a2""#.to_string(),
+            ],
+        };
+        let check_amd_gpu_attachment_result = check_amd_gpu_attachment(mock_pci_client);
+        assert!(check_amd_gpu_attachment_result.is_ok());
+        assert!(check_amd_gpu_attachment_result.unwrap());
+    }
+
+    #[test]
+    fn test_is_amd_gpu_attached_negative_case() {
+        let mock_pci_client = MockPciClient {
+            // Below is an actual output from lspci for ena device (not AMD GPU).
+            output: vec![r#"00:06.0 "0200" "1d0f" "ec20" -p00 "1d0f" "ec20""#.to_string()],
+        };
+        let check_amd_gpu_attachment_result = check_amd_gpu_attachment(mock_pci_client);
+        assert!(check_amd_gpu_attachment_result.is_ok());
+        assert!(!check_amd_gpu_attachment_result.unwrap());
     }
 }
