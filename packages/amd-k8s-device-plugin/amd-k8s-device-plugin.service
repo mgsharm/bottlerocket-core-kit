@@ -1,0 +1,17 @@
+[Unit]
+Description=Start AMD kubernetes device plugin
+After=kubelet.service
+Wants=kubelet.service
+
+[Service]
+ExecStartPre=/usr/bin/sleep 0.1
+ExecStartPre=/usr/bin/test -S /var/lib/kubelet/device-plugins/kubelet.sock
+ExecStart=/usr/bin/amd-device-plugin -logtostderr=true -stderrthreshold=INFO -v=5
+Type=simple
+TimeoutSec=0
+RestartSec=2
+Restart=always
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target

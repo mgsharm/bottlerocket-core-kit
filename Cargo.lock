@@ -24,6 +24,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "amd-k8s-device-plugin"
+version = "0.1.0"
+dependencies = [
+ "glibc",
+ "hwloc",
+ "libdrm",
+]
+
+[[package]]
 name = "aws-iam-authenticator"
 version = "0.1.0"
 dependencies = [
@@ -68,6 +77,7 @@ dependencies = [
  "amazon-ecs-cni-plugins",
  "amazon-ssm-agent",
  "amazon-vpc-cni-plugins",
+ "amd-k8s-device-plugin",
  "aws-iam-authenticator",
  "aws-otel-collector",
  "aws-signing-helper",
@@ -102,6 +112,7 @@ dependencies = [
  "glibc",
  "grep",
  "host-ctr",
+ "hwloc",
  "iproute",
  "iptables",
  "iputils",
@@ -124,6 +135,7 @@ dependencies = [
  "libcrypto",
  "libcryptsetup",
  "libdevmapper",
+ "libdrm",
  "libelf",
  "libexpat",
  "libffi",
@@ -409,6 +421,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "hwloc"
+version = "0.1.0"
+dependencies = [
+ "glibc",
+]
+
+[[package]]
 name = "iproute"
 version = "0.1.0"
 dependencies = [
@@ -583,6 +602,13 @@ dependencies = [
  "libaio",
  "libselinux",
  "util-linux",
+]
+
+[[package]]
+name = "libdrm"
+version = "0.1.0"
+dependencies = [
+ "glibc",
 ]
 
 [[package]]

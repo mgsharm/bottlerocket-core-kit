@@ -47,6 +47,9 @@ ethtool = { path = "../../packages/ethtool" }
 filesystem = { path = "../../packages/filesystem" }
 findutils = { path = "../../packages/findutils" }
 glibc = { path = "../../packages/glibc" }
+hwloc = { path = "../../packages/hwloc" }
+amd-k8s-device-plugin = { path = "../../packages/amd-k8s-device-plugin" }
+libdrm = { path = "../../packages/libdrm" }
 grep = { path = "../../packages/grep" }
 host-ctr = { path = "../../packages/host-ctr" }
 iproute = { path = "../../packages/iproute" }

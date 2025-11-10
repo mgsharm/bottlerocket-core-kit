@@ -32,10 +32,14 @@ pub(super) enum Error {
     CheckEfaFailure { source: pciclient::PciClientError },
     #[snafu(display("Failed to check if Neuron device is attached: {}", source))]
     CheckNeuronFailure { source: pciclient::PciClientError },
+    #[snafu(display("Failed to check if AMD GPU device is attached: {}", source))]
+    CheckAmdGpuFailure { source: pciclient::PciClientError },
     #[snafu(display("Did not detect EFA"))]
     NoEfaPresent,
     #[snafu(display("Did not detect Neuron"))]
     NoNeuronPresent,
+    #[snafu(display("Did not detect AMD GPU"))]
+    NoAmdGpuPresent,
     #[snafu(display("'{}' has no parent directory", path.display()))]
     NoParentDirectory { path: std::path::PathBuf },
     #[snafu(display("Failed to open '{}': {}", path.display(), source))]
@@ -66,18 +70,6 @@ pub(super) enum Error {
         requested: String,
         preferred: String,
     },
-    #[snafu(display("{driver} is not a supported driver"))]
-    UnsupportedDriver { driver: String },
-    #[snafu(display("{flavor} is not a supported choice for {driver}"))]
-    UnsupportedDriverFlavor { driver: String, flavor: String },
-    #[snafu(display("Failed to check if this is an inf1 instance: {}", source))]
-    CheckInf1Failure { source: pciclient::PciClientError },
-    #[snafu(display("Failed to check if this is an inf2+ instance: {}", source))]
-    CheckInf2Failure { source: pciclient::PciClientError },
-    #[snafu(display("Did not detect inf1 hardware"))]
-    NoInf1Present,
-    #[snafu(display("Did not detect inf2+ hardware"))]
-    NoInf2Present,
 }
 
 pub(crate) type Result<T> = std::result::Result<T, Error>;
